@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path, Query
 
 import uvicorn
 from typing import Optional
@@ -27,10 +27,29 @@ class EducationLevel(str, Enum):
 )
 def greetings(
     *,
-    name: str,
-    surname: str,
-    age: Optional[int] = None,
-    is_staff: bool = False,
+    name: str = Path(
+        ...,
+        min_lenght=2,
+        max_linght=20,
+        title='Полное имя',
+        description='Можно вводить в любом регистре'
+
+    ),
+    surname: list[str] = Query(
+        ...,
+        min_length=2,
+        max_length=5
+    ),
+    age: Optional[int] = Query(
+        None,
+        gt=4,
+        le=99
+    ),
+    is_staff: bool = Query(
+        False,
+        alias='is-staff',
+        include_in_schema=False
+    ),
     education_level: Optional[EducationLevel] = None
 ) -> dict[str, str]:
     """
@@ -39,7 +58,6 @@ def greetings(
     - **name**: имя
     - **surname**: фамилия
     - **age**: возраст (опционально)
-    - **is_staff**: является ли пользователь сотрудником
     - **education_level**: уровень образования (опционально)
     """
     result = ' '.join(name, surname)
